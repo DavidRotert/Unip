@@ -22,8 +22,9 @@ def get_list_from_file(file=LISTFILE):
 
 
 def write_list_to_file(l, file=LISTFILE):
+    l.sort()
     with open(file, "w") as f:
-        return f.writelines(l)
+        return f.write("\n".join(l))
 
 
 class Unip:
@@ -40,6 +41,24 @@ class Unip:
     def upgrade(self):
         """Upgrade packages."""
         packagemanager.apt.upgrade()
+
+    def sync(self):
+        """Syncs package list."""
+        # transform package names to URLs
+        pkglist = map(lambda x: package.get_package_from_url(x).get_url(),
+                    packagemanager.apt.get_manual_installed())
+                    
+        # Remove non installed packages
+        for url in self._list:
+            if type(package.get_package_from_url(url)) == package.AptPackage:
+                if not url in pkglist:
+                    self._list.remove(url)
+
+        # Add packages
+        for pkg in pkglist:
+            if not pkg.get_url() in self._list:
+                self._list.append(pkg.get_url())
+        write_list_to_file(self._list)
 
     def autoremove(self):
         """Autoremove packages."""
@@ -112,6 +131,9 @@ if __name__ == "__main__":
                                         Built on top of different Linux package managers.")
     arg_parser.add_argument("-y", "--yes", action="store_true",
                             dest="yes", help="Yes to all actions. Use with caution!")
+    arg_parser.add_argument("-s", "--sync", "--sync-package-list", action="store_true",
+                            dest="sync", help="Syncs list of installed packages with list of packages \
+                            installed with systems package manager.")
     arg_parser.add_argument("-u", "--update", "--update-cache", action="store_true",
                             dest="update", help="Update package cache. Is executed at first.")
     arg_parser.add_argument("-if", "--install-file", dest="install_file", help="Installs packages \
@@ -143,6 +165,11 @@ if __name__ == "__main__":
         print("🗘 Update package cache ...")
         unip.update()
         print("✓ Updated package cache")
+
+    if args.sync:
+        print("🗘 Sync package list ...")
+        unip.sync()
+        print("✓ Synced package list")
 
     prompt = False
 

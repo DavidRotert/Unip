@@ -1,10 +1,17 @@
 import os
 
+def get_manual_installed():
+    l = []
+    with os.popen("apt-mark showmanual", "r") as out:
+        for line in out:
+            l.append(line.strip())
+    return l
+
 def installed(package):
-    out = os.popen("dpkg-query -f '${{Package}}\\n' -W {}".format(package.get_name()), "r")
-    for line in out:
-        if line.strip() == package.get_name():
-            return True
+    with os.popen("dpkg-query -f '${{Package}}\\n' -W {}".format(package.get_name()), "r") as out:
+        for line in out:
+            if line.strip() == package.get_name():
+                return True
     return False
 
 def update():
