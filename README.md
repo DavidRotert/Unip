@@ -8,12 +8,12 @@ Features:
 
 - Update package cache, upgrade, install, purge and remove packages.
 - All packages installed with Unip are saved in a list as a special url format ``/var/lib/unip/packages.list``. This List can be used to install packages on other machine.
+- Synchronizing list of installed packages with the list of packages installed with Unip.
 
 Currently, only APT/DPKG is supported. Features coming in future releases:
 
 - Support for other package managers (Pacman, RPM, Snap etc.).
 - Own packaging system.
-- Synchronizing list of installed packages with the list of packages installed with Unip.
 
 ## Installation
 
